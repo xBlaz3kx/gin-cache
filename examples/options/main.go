@@ -5,9 +5,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	cache "github.com/chenyahui/gin-cache"
-	"github.com/chenyahui/gin-cache/persist"
 	"github.com/gin-gonic/gin"
+	cache "github.com/xBlaz3kx/gin-cache"
+	"github.com/xBlaz3kx/gin-cache/persist"
 )
 
 func main() {

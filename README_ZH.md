@@ -1,7 +1,7 @@
 # gin-cache 
-[![Release](https://img.shields.io/github/release/chenyahui/gin-cache.svg?style=flat-square)](https://github.com/chenyahui/gin-cache/releases)
-[![doc](https://img.shields.io/badge/go.dev-doc-007d9c?style=flat-square&logo=read-the-docs)](https://pkg.go.dev/github.com/chenyahui/gin-cache)
-[![goreportcard for gin-cache](https://goreportcard.com/badge/github.com/chenyahui/gin-cache)](https://goreportcard.com/report/github.com/chenyahui/gin-cache)
+[![Release](https://img.shields.io/github/release/chenyahui/gin-cache.svg?style=flat-square)](https://github.com/xBlaz3kx/gin-cache/releases)
+[![doc](https://img.shields.io/badge/go.dev-doc-007d9c?style=flat-square&logo=read-the-docs)](https://pkg.go.dev/github.com/xBlaz3kx/gin-cache)
+[![goreportcard for gin-cache](https://goreportcard.com/badge/github.com/xBlaz3kx/gin-cache)](https://goreportcard.com/report/github.com/xBlaz3kx/gin-cache)
 ![](https://img.shields.io/badge/license-MIT-green)
 [![codecov](https://codecov.io/gh/chenyahui/gin-cache/branch/main/graph/badge.svg?token=MX8Z4D5RZS)](https://codecov.io/gh/chenyahui/gin-cache)
 
@@ -21,7 +21,7 @@
 ## 安装
 
 ```
-go get -u github.com/chenyahui/gin-cache
+go get -u github.com/xBlaz3kx/gin-cache
 ```
 
 ## 例子
@@ -32,8 +32,8 @@ package main
 import (
 	"time"
 
-	"github.com/chenyahui/gin-cache"
-	"github.com/chenyahui/gin-cache/persist"
+	"github.com/xBlaz3kx/gin-cache"
+	"github.com/xBlaz3kx/gin-cache/persist"
 	"github.com/gin-gonic/gin"
 )
 
@@ -62,8 +62,8 @@ package main
 import (
 	"time"
 
-	"github.com/chenyahui/gin-cache"
-	"github.com/chenyahui/gin-cache/persist"
+	"github.com/xBlaz3kx/gin-cache"
+	"github.com/xBlaz3kx/gin-cache/persist"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 )

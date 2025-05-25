@@ -11,10 +11,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/chenyahui/gin-cache/persist"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/xBlaz3kx/gin-cache/persist"
 )
 
 func init() {
