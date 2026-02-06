@@ -168,6 +168,23 @@ func CacheByRequestURI(defaultCacheStore persist.CacheStore, defaultExpire time.
 	return cache(defaultCacheStore, defaultExpire, cfg)
 }
 
+func CacheStrategyRequestURI(c *gin.Context) (bool, Strategy) {
+	return true, Strategy{
+		CacheKey: c.Request.RequestURI,
+	}
+}
+
+func CacheStrategyRequestURIIgnoreQueryOrder(c *gin.Context) (bool, Strategy) {
+	newUri, err := getRequestUriIgnoreQueryOrder(c.Request.RequestURI)
+	if err != nil {
+		newUri = c.Request.RequestURI
+	}
+
+	return true, Strategy{
+		CacheKey: newUri,
+	}
+}
+
 func getRequestUriIgnoreQueryOrder(requestURI string) (string, error) {
 	parsedUrl, err := url.ParseRequestURI(requestURI)
 	if err != nil {
