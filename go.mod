@@ -1,6 +1,6 @@
 module github.com/xBlaz3kx/gin-cache
 
-go 1.24
+go 1.24.0
 
 require (
 	github.com/gin-gonic/gin v1.9.1
@@ -8,7 +8,7 @@ require (
 	github.com/jellydator/ttlcache/v2 v2.11.1
 	github.com/redis/go-redis/v9 v9.7.3
 	github.com/stretchr/testify v1.8.3
-	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
+	golang.org/x/sync v0.18.0
 )
 
 require (
@@ -34,10 +34,10 @@ require (
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect
 	golang.org/x/arch v0.3.0 // indirect
-	golang.org/x/crypto v0.9.0 // indirect
-	golang.org/x/net v0.10.0 // indirect
-	golang.org/x/sys v0.8.0 // indirect
-	golang.org/x/text v0.9.0 // indirect
-	google.golang.org/protobuf v1.30.0 // indirect
+	golang.org/x/crypto v0.45.0 // indirect
+	golang.org/x/net v0.47.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
+	golang.org/x/text v0.31.0 // indirect
+	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
