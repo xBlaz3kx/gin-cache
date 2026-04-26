@@ -101,7 +101,7 @@ func (c *ControlConfig) build() string {
 	}
 
 	if c.staleIfError != nil {
-		stale := fmt.Sprintf("%s=%.f", StaleIfError, c.staleWhileRevalidate.Seconds())
+		stale := fmt.Sprintf("%s=%.f", StaleIfError, c.staleIfError.Seconds())
 		values[stale] = struct{}{}
 	}
 
