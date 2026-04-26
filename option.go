@@ -28,7 +28,7 @@ type Config struct {
 
 func newConfigByOpts(opts ...Option) *Config {
 	cfg := &Config{
-		logger:                       Discard{},
+		logger:                       NoopLogger{},
 		hitCacheCallback:             defaultHitCacheCallback,
 		missCacheCallback:            defaultMissCacheCallback,
 		beforeReplyWithCacheCallback: defaultBeforeReplyWithCacheCallback,
@@ -54,20 +54,7 @@ func WithLogger(l Logger) Option {
 	}
 }
 
-// Logger define the logger interface
-type Logger interface {
-	Errorf(string, ...interface{})
-}
-
-// Discard the default logger that will discard all logs of gin-cache
-type Discard struct {
-}
-
-// Errorf will output the log at error level
-func (l Discard) Errorf(string, ...interface{}) {
-}
-
-// WithCacheStrategyByRequest set up the custom strategy by per request
+// WithCacheStrategyByRequest set up the custom strategy per request
 func WithCacheStrategyByRequest(getGetCacheStrategyByRequest GetCacheStrategyByRequest) Option {
 	return func(c *Config) {
 		if getGetCacheStrategyByRequest != nil {
@@ -76,7 +63,7 @@ func WithCacheStrategyByRequest(getGetCacheStrategyByRequest GetCacheStrategyByR
 	}
 }
 
-// OnHitCacheCallback define the callback when use cache
+// OnHitCacheCallback define the callback when cache was hit
 type OnHitCacheCallback func(c *gin.Context)
 
 var defaultHitCacheCallback = func(c *gin.Context) {}
@@ -90,9 +77,10 @@ func WithOnHitCache(cb OnHitCacheCallback) Option {
 	}
 }
 
-// OnMissCacheCallback define the callback when use cache
+// OnMissCacheCallback callback when cache was missed
 type OnMissCacheCallback func(c *gin.Context)
 
+// Noop default callback
 var defaultMissCacheCallback = func(c *gin.Context) {}
 
 // WithOnMissCache will be called when cache miss.
@@ -104,6 +92,7 @@ func WithOnMissCache(cb OnMissCacheCallback) Option {
 	}
 }
 
+// BeforeReplyWithCacheCallback define the callback before replying with cache
 type BeforeReplyWithCacheCallback func(c *gin.Context, cache *ResponseCache)
 
 var defaultBeforeReplyWithCacheCallback = func(c *gin.Context, cache *ResponseCache) {}
@@ -141,7 +130,8 @@ func WithSingleFlightForgetTimeout(forgetTimeout time.Duration) Option {
 	}
 }
 
-// IgnoreQueryOrder will ignore the queries order in url when generate cache key . This option only takes effect in CacheByRequestURI function
+// IgnoreQueryOrder will ignore the queries order in url when generate cache key.
+// This option only takes effect in CacheByRequestURI strategy
 func IgnoreQueryOrder() Option {
 	return func(c *Config) {
 		c.ignoreQueryOrder = true

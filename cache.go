@@ -1,10 +1,7 @@
 package cache
 
 import (
-	"bytes"
-	"encoding/gob"
 	"errors"
-	"net/http"
 	"net/url"
 	"sort"
 	"strings"
@@ -14,22 +11,6 @@ import (
 	"github.com/xBlaz3kx/gin-cache/persist"
 	"golang.org/x/sync/singleflight"
 )
-
-// Strategy the cache strategy
-type Strategy struct {
-	CacheKey string
-
-	// CacheStore if nil, use default cache store instead
-	CacheStore persist.CacheStore
-
-	// CacheDuration
-	CacheDuration time.Duration
-}
-
-// GetCacheStrategyByRequest User can this function to design custom cache strategy by request.
-// The first return value bool means whether this request should be cached.
-// The second return value Strategy determine the special strategy by this request.
-type GetCacheStrategyByRequest func(c *gin.Context) (bool, Strategy)
 
 // Cache user must pass getCacheKey to describe the way to generate cache key
 func Cache(
@@ -60,7 +41,6 @@ func cache(
 		}
 
 		cacheKey := cacheStrategy.CacheKey
-
 		if cfg.prefixKey != "" {
 			cacheKey = cfg.prefixKey + cacheKey
 		}
@@ -77,22 +57,20 @@ func cache(
 		}
 
 		// read cache first
-		{
-			respCache := &ResponseCache{}
-			err := cacheStore.Get(c.Request.Context(), cacheKey, &respCache)
-			if err == nil {
-				replyWithCache(c, cfg, respCache)
-				cfg.hitCacheCallback(c)
-				return
-			}
+		respCache := &ResponseCache{}
+		err := cacheStore.Get(c.Request.Context(), cacheKey, &respCache)
+		if err == nil {
+			replyWithCache(c, cfg, respCache)
+			cfg.hitCacheCallback(c)
+			return
+		}
 
-			if !errors.Is(err, persist.ErrCacheMiss) {
-				cfg.logger.Errorf("get cache error: %s, cache key: %s", err, cacheKey)
-			}
-			cfg.missCacheCallback(c)
+		if !errors.Is(err, persist.ErrCacheMiss) {
+			cfg.logger.Errorf("get cache error: %s, cache key: %s", err, cacheKey)
 		}
 
 		// cache miss, then call the backend
+		cfg.missCacheCallback(c)
 
 		// use responseCacheWriter in order to record the response
 		cacheWriter := &responseCacheWriter{
@@ -133,6 +111,32 @@ func cache(
 	}
 }
 
+func replyWithCache(
+	c *gin.Context,
+	cfg *Config,
+	respCache *ResponseCache,
+) {
+	cfg.beforeReplyWithCacheCallback(c, respCache)
+
+	c.Writer.WriteHeader(respCache.Status)
+
+	if !cfg.withoutHeader {
+		for key, values := range respCache.Header {
+			for _, val := range values {
+				c.Writer.Header().Set(key, val)
+			}
+		}
+	}
+
+	_, err := c.Writer.Write(respCache.Data)
+	if err != nil {
+		cfg.logger.Errorf("write response error: %s", err)
+	}
+
+	// abort handler chain and return directly
+	c.Abort()
+}
+
 // CacheByRequestURI a shortcut function for caching response by uri
 func CacheByRequestURI(defaultCacheStore persist.CacheStore, defaultExpire time.Duration, opts ...Option) gin.HandlerFunc {
 	cfg := newConfigByOpts(opts...)
@@ -142,6 +146,13 @@ func CacheByRequestURI(defaultCacheStore persist.CacheStore, defaultExpire time.
 	}
 
 	var cacheStrategy GetCacheStrategyByRequest
+
+	cacheStrategy = func(c *gin.Context) (bool, Strategy) {
+		return true, Strategy{
+			CacheKey: c.Request.RequestURI,
+		}
+	}
+
 	if cfg.ignoreQueryOrder {
 		cacheStrategy = func(c *gin.Context) (bool, Strategy) {
 			newUri, err := getRequestUriIgnoreQueryOrder(c.Request.RequestURI)
@@ -152,13 +163,6 @@ func CacheByRequestURI(defaultCacheStore persist.CacheStore, defaultExpire time.
 
 			return true, Strategy{
 				CacheKey: newUri,
-			}
-		}
-
-	} else {
-		cacheStrategy = func(c *gin.Context) (bool, Strategy) {
-			return true, Strategy{
-				CacheKey: c.Request.RequestURI,
 			}
 		}
 	}
@@ -223,69 +227,4 @@ func CacheByRequestPath(defaultCacheStore persist.CacheStore, defaultExpire time
 	}))
 
 	return Cache(defaultCacheStore, defaultExpire, opts...)
-}
-
-func init() {
-	gob.Register(&ResponseCache{})
-}
-
-// ResponseCache record the http response cache
-type ResponseCache struct {
-	Status int
-	Header http.Header
-	Data   []byte
-}
-
-func (c *ResponseCache) fillWithCacheWriter(cacheWriter *responseCacheWriter, cfg *Config) {
-	c.Status = cacheWriter.Status()
-	c.Data = cacheWriter.body.Bytes()
-	if !cfg.withoutHeader {
-		c.Header = cacheWriter.Header().Clone()
-
-		for _, headerKey := range cfg.discardHeaders {
-			c.Header.Del(headerKey)
-		}
-	}
-}
-
-// responseCacheWriter
-type responseCacheWriter struct {
-	gin.ResponseWriter
-
-	body bytes.Buffer
-}
-
-func (w *responseCacheWriter) Write(b []byte) (int, error) {
-	w.body.Write(b)
-	return w.ResponseWriter.Write(b)
-}
-
-func (w *responseCacheWriter) WriteString(s string) (int, error) {
-	w.body.WriteString(s)
-	return w.ResponseWriter.WriteString(s)
-}
-
-func replyWithCache(
-	c *gin.Context,
-	cfg *Config,
-	respCache *ResponseCache,
-) {
-	cfg.beforeReplyWithCacheCallback(c, respCache)
-
-	c.Writer.WriteHeader(respCache.Status)
-
-	if !cfg.withoutHeader {
-		for key, values := range respCache.Header {
-			for _, val := range values {
-				c.Writer.Header().Set(key, val)
-			}
-		}
-	}
-
-	if _, err := c.Writer.Write(respCache.Data); err != nil {
-		cfg.logger.Errorf("write response error: %s", err)
-	}
-
-	// abort handler chain and return directly
-	c.Abort()
 }
