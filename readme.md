@@ -1,26 +1,26 @@
 # gin-cache
+
 [![Release](https://img.shields.io/github/release/chenyahui/gin-cache.svg?style=flat-square)](https://github.com/xBlaz3kx/gin-cache/releases)
 [![doc](https://img.shields.io/badge/go.dev-doc-007d9c?style=flat-square&logo=read-the-docs)](https://pkg.go.dev/github.com/xBlaz3kx/gin-cache)
 [![goreportcard for gin-cache](https://goreportcard.com/badge/github.com/xBlaz3kx/gin-cache)](https://goreportcard.com/report/github.com/xBlaz3kx/gin-cache)
 ![](https://img.shields.io/badge/license-MIT-green)
 [![codecov](https://codecov.io/gh/chenyahui/gin-cache/branch/main/graph/badge.svg?token=MX8Z4D5RZS)](https://codecov.io/gh/chenyahui/gin-cache)
 
-English | [🇨🇳中文](README_ZH.md)
+A high performance Gin middleware to cache http responses.
 
-A high performance gin middleware to cache http response. Compared to gin-contrib/cache. It has a huge performance improvement.
+# Features
 
-
-# Feature
-
-* Has a huge performance improvement compared to gin-contrib/cache.
-* Cache http response in local memory or Redis.
-* Offer a way to custom the cache strategy by per request.
+* Has a performance improvement compared to `gin-contrib/cache`.
+* Multiple cache store implementations; including `in-memory` and `Redis`.
+* Customizable cache key (with prefix)
+* Sets appropriate cache control headers by default
 * Use singleflight to avoid cache breakdown problem.
-* Only Cache 2xx HTTP Response.
+* Only caches successful responses (status code 200-299)
 
 # How To Use
 
 ## Install
+
 ```
 go get -u github.com/xBlaz3kx/gin-cache
 ```
@@ -90,14 +90,6 @@ func main() {
 		panic(err)
 	}
 }
-```
-
-
-
-# Benchmark
-
-```
-wrk -c 500 -d 1m -t 5 http://127.0.0.1:8080/hello
 ```
 
 ## MemoryStore
